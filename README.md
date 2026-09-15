@@ -54,6 +54,44 @@ The core learner journey is:
 
 ---
 
+## Product Walkthrough
+
+LLD Coach is designed around a simple iterative learning workflow:
+
+**Choose Problem → Design → Submit → Get Feedback → Review → Try Again**
+
+### Dashboard
+
+The dashboard provides a focused entry point for LLD practice and shows the learner's recent attempts and progress.
+
+![LLD Coach Dashboard](screenshots/dashboard.png)
+
+### 1. Choose a Problem
+
+Learners can choose from LLD problems with difficulty levels and clearly defined requirements.
+
+![Choose a Problem](screenshots/choosing-problem.png)
+
+### 2. Design & Submit
+
+Each problem provides the requirements alongside structured sections for the learner to explain their assumptions, classes/interfaces, relationships, and design reasoning.
+
+![Design a Solution](screenshots/designing-problem.png)
+
+### 3. Evaluation & Feedback
+
+After submission, the learner receives structured feedback based on the evaluation rubric, including evidence and scores for individual criteria.
+
+![Evaluation Overview](screenshots/evaluation.png)
+
+![Evaluation Breakdown](screenshots/evaluation2.png)
+
+### 4. Review & History
+
+Previous attempts are preserved so learners can review their feedback and compare their progress across attempts.
+
+![Attempt History](screenshots/history.png)
+
 ## Architecture
 
 ```text

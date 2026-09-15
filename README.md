@@ -82,15 +82,15 @@ Each problem provides the requirements alongside structured sections for the lea
 
 After submission, the learner receives structured feedback based on the evaluation rubric, including evidence and scores for individual criteria.
 
-![Evaluation Overview](screenshots/evaluation.png)
+![Evaluation Overview](screenshots/Evaluation.png)
 
-![Evaluation Breakdown](screenshots/evaluation2.png)
+![Evaluation Breakdown](screenshots/Evaluation2.png)
 
 ### 4. Review & History
 
 Previous attempts are preserved so learners can review their feedback and compare their progress across attempts.
 
-![Attempt History](screenshots/history.png)
+![Attempt History](screenshots/History.png)
 
 ## Architecture
 

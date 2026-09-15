@@ -33,7 +33,7 @@ type Attempt = {
   id: string;
   learnerId: string;
   problemId: string;
-  status: string;
+  status?: string;
   _submission?: {
     id: string;
     type: string;
@@ -56,6 +56,35 @@ type Submission = {
 
 const API_URL = "http://localhost:5000/api";
 const LEARNER_ID = "demo-learner";
+
+function getAttemptStatusLabel(
+  attempt: Attempt,
+  hasEvaluation: boolean
+): string {
+  if (hasEvaluation) {
+    return "Completed";
+  }
+
+  switch ((attempt.status ?? "").toLowerCase()) {
+    case "draft":
+      return "Draft";
+
+    case "submitted":
+      return "Submitted";
+
+    case "evaluating":
+      return "Evaluating";
+
+    case "completed":
+      return "Completed";
+
+    case "evaluation_failed":
+      return "Evaluation Failed";
+
+    default:
+      return "In Progress";
+  }
+}
 
 function App() {
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -343,100 +372,107 @@ localStorage.setItem(
           ) : (
             <div className="space-y-3">
               {history.slice(0, 5).map(
-                ({ attempt, problem, evaluation }) => (
-                  <div
-                    key={attempt.id}
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/4 p-5"
-                  >
-                    <div>
-                      <h4 className="font-semibold">
-                        {problem.title}
-                      </h4>
+  ({ attempt, problem, evaluation }) => {
+    const statusLabel = getAttemptStatusLabel(
+      attempt,
+      Boolean(evaluation)
+    );
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        {evaluation
-                          ? "Evaluation complete"
-                          : attempt.status === "draft"
-                            ? "Draft — not submitted"
-                            : `Status: ${attempt.status}`}
-                      </p>
-                    </div>
+    return (
+      <div
+        key={attempt.id}
+        className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/4 p-5"
+      >
+        <div>
+          <h4 className="font-semibold">
+            {problem.title}
+          </h4>
 
-                    <div className="flex items-center gap-4">
-                      {evaluation && (
-                        <div className="text-right">
-                          <p className="text-lg font-bold">
-                            {evaluation.overallScore}
-                            <span className="text-xs font-normal text-slate-500">
-                              /100
-                            </span>
-                          </p>
-                        </div>
-                      )}
+          <p className="mt-1 text-sm text-slate-500">
+            {evaluation
+              ? "Evaluation complete"
+              : statusLabel === "Draft"
+                ? "Draft — not submitted"
+                : `Status: ${statusLabel}`}
+          </p>
+        </div>
 
-                      {evaluation ? (
-                        <button
-                          onClick={() =>
-                            setReview({
-                              problem,
-                              evaluation,
-                            })
-                          }
-                          className="rounded-xl border border-indigo-400/30 bg-indigo-400/10 px-4 py-2 text-sm font-medium text-indigo-300 transition hover:bg-indigo-400/20"
-                        >
-                          Review
-                        </button>
-                      ) : attempt.status === "draft" ? (
-                        <button
-                          onClick={async () => {
-                            try {
-                              setError("");
-                              setStarting(true);
+        <div className="flex items-center gap-4">
+          {evaluation && (
+            <div className="text-right">
+              <p className="text-lg font-bold">
+                {evaluation.overallScore}
+                <span className="text-xs font-normal text-slate-500">
+                  /100
+                </span>
+              </p>
+            </div>
+          )}
 
-                              const response = await fetch(
-                                `${API_URL}/attempts/${attempt.id}`
-                              );
+          {evaluation ? (
+            <button
+              onClick={() =>
+                setReview({
+                  problem,
+                  evaluation,
+                })
+              }
+              className="rounded-xl border border-indigo-400/30 bg-indigo-400/10 px-4 py-2 text-sm font-medium text-indigo-300 transition hover:bg-indigo-400/20"
+            >
+              Review
+            </button>
+          ) : statusLabel === "Draft" ? (
+            <button
+              onClick={async () => {
+                try {
+                  setError("");
+                  setStarting(true);
 
-                              if (!response.ok) {
-                                throw new Error(
-                                  "Failed to resume attempt."
-                                );
-                              }
+                  const response = await fetch(
+                    `${API_URL}/attempts/${attempt.id}`
+                  );
 
-                              const result =
-                                await response.json();
+                  if (!response.ok) {
+                    throw new Error(
+                      "Failed to resume attempt."
+                    );
+                  }
 
-                              setAttempt(result.data);
-                              setSelectedProblem(problem);
+                  const result =
+                    await response.json();
 
-                              localStorage.setItem(
-                                "lld-coach-attempt-id",
-                                attempt.id
-                              );
-                            } catch (err) {
-                              setError(
-                                err instanceof Error
-                                  ? err.message
-                                  : "Failed to resume attempt."
-                              );
-                            } finally {
-                              setStarting(false);
-                            }
-                          }}
-                          disabled={starting}
-                          className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 disabled:opacity-50"
-                        >
-                          Continue
-                        </button>
-                      ) : (
-                        <span className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-500">
-                          {attempt.status}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )
-              )}
+                  setAttempt(result.data);
+                  setSelectedProblem(problem);
+
+                  localStorage.setItem(
+                    "lld-coach-attempt-id",
+                    attempt.id
+                  );
+                } catch (err) {
+                  setError(
+                    err instanceof Error
+                      ? err.message
+                      : "Failed to resume attempt."
+                  );
+                } finally {
+                  setStarting(false);
+                }
+              }}
+              disabled={starting}
+              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 disabled:opacity-50"
+            >
+              Continue
+            </button>
+          ) : (
+            <span className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-500">
+              {statusLabel}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+)}
             </div>
           )}
         </section>
